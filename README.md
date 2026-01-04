@@ -1,4 +1,4 @@
-# 9-Hour AI Workshop - Complete Materials
+# AI Workshop - Complete Materials
 
 Complete coding exercises and solutions for the 4-day AI workshop.
 
