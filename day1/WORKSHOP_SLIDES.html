@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 1: LLM APIs & Code Basics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .slides-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #764ba2;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 2em;
+            color: #667eea;
+            margin: 30px 0 20px 0;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        ul, ol {
+            font-size: 1.5em;
+            line-height: 1.8;
+            margin-left: 40px;
+            margin-bottom: 30px;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .big-number {
+            font-size: 4em;
+            color: #667eea;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #667eea;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .intro-box h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .intro-box ul {
+            color: white;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li:before {
+            content: "✅ ";
+            margin-right: 10px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .question-box {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #667eea;
+        }
+
+        .big-text {
+            font-size: 2.5em;
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+            margin: 40px 0;
+        }
+
+        /* Print Styles - Show all slides on separate pages with preserved formatting */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .navigation,
+            .slide-counter {
+                display: none !important;
+            }
+
+            .slides-wrapper {
+                position: static;
+                width: 100%;
+                height: auto;
+                background: transparent;
+            }
+
+            .slide-container {
+                position: static !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                display: block !important;
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
+                page-break-after: always;
+                page-break-inside: avoid;
+                padding: 60px;
+                margin: 0;
+                background: transparent;
+            }
+
+            .slide-container:last-child {
+                page-break-after: auto;
+            }
+
+            .slide {
+                background: white !important;
+                border-radius: 20px !important;
+                padding: 60px !important;
+                max-width: 1200px !important;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+                page-break-inside: avoid;
+                animation: none;
+                margin: 0 auto;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h1 {
+                font-size: 3.5em !important;
+                color: #667eea !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h2 {
+                font-size: 2.5em !important;
+                color: #764ba2 !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h3 {
+                font-size: 2em !important;
+                color: #667eea !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .subtitle {
+                font-size: 1.8em !important;
+                color: #666 !important;
+            }
+
+            ul, ol {
+                font-size: 1.5em !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .code-block {
+                background: #f4f4f4 !important;
+                border-left: 4px solid #667eea !important;
+                padding: 20px !important;
+                font-size: 1.2em !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .highlight {
+                background: #fff3cd !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-number {
+                font-size: 4em !important;
+                color: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .two-column {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 40px !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                background: #f8f9fa !important;
+                padding: 30px !important;
+                border-radius: 12px !important;
+                border-left: 5px solid #667eea !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                padding: 40px !important;
+                border-radius: 15px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box h2 {
+                color: white !important;
+            }
+
+            .intro-box ul {
+                color: white !important;
+            }
+
+            .warning {
+                background: #fff3cd !important;
+                border-left: 5px solid #ffc107 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .tip {
+                background: #d1ecf1 !important;
+                border-left: 5px solid #17a2b8 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .question-box {
+                background: #e7f3ff !important;
+                padding: 30px !important;
+                border-radius: 15px !important;
+                border: 3px solid #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-text {
+                font-size: 2.5em !important;
+                color: #667eea !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            @page {
+                size: letter;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">16</span>
+    </div>
+
+    <div class="slides-wrapper">
+    <!-- SLIDE 1: Welcome -->
+    <div class="slide-container active">
+        <div class="slide">
+            <h1>Welcome to the AI Workshop! 🚀</h1>
+            <div class="subtitle">Day 1: LLM APIs & Code Basics</div>
+            <div class="intro-box">
+                <h2>Hi, I'm Taloot Khan! 👋</h2>
+                <ul class="checklist">
+                    <li>Backend Engineer with 5 years experience</li>
+                    <li>Working with AI & LLMs for 2 years</li>
+                    <li>Love football ⚽</li>
+                    <li>Passionate about making AI accessible to everyone!</li>
+                </ul>
+            </div>
+            <div class="big-text">
+                Today: Zero → AI-Powered Chatbot! 🎯
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Student Introductions -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Let's Get to Know Each Other! 👥</h1>
+            <div class="question-box">
+                <h2>Please Share:</h2>
+                <ol>
+                    <li>Your name</li>
+                    <li>Your programming background<br><span style="font-size: 0.8em; color: #666;">(Beginner/Intermediate/Advanced)</span></li>
+                    <li>What do you hope to learn today?</li>
+                    <li>Have you used ChatGPT or other AI tools before?</li>
+                </ol>
+            </div>
+            <div class="tip">
+                <strong>💡 Don't worry if you're a beginner!</strong><br>
+                We're starting from the ground up. Everyone is welcome! 🎉
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: Should We Be Scared? -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Should We Be Scared of AI? 🤖</h1>
+            <div class="big-text" style="color: #28a745; font-size: 3em;">
+                NO! But we should be informed ✅
+            </div>
+            <div class="two-column">
+                <div class="card">
+                    <h3>AI is a Tool 🛠️</h3>
+                    <p style="font-size: 1.3em; line-height: 1.6;">
+                        Just like the internet, calculators, or programming languages. It's here to amplify what we can do!
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Not a Replacement ❌</h3>
+                    <p style="font-size: 1.3em; line-height: 1.6;">
+                        AI won't replace you. Someone who knows how to use AI will replace you if you don't learn it!
+                    </p>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 40px; font-size: 2em;">
+                The future belongs to those who work WITH AI 🚀
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: AI Basics -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>AI in Industry: The Basics 🎓</h1>
+            
+            <h3>1. Large Language Models (LLMs)</h3>
+            <ul>
+                <li>🤖 Trained on <span class="highlight">billions of words</span></li>
+                <li>🧠 Predict the next word in a sequence</li>
+                <li>💡 Examples: GPT-4, Claude, Gemini</li>
+            </ul>
+
+            <h3>2. How They Work (Simplified)</h3>
+            <div class="code-block">
+                Input (Your Question) → Processing (Neural Network) → Output (Generated Text)
+            </div>
+
+            <h3>3. Common Use Cases in Industry</h3>
+            <div class="two-column">
+                <ul>
+                    <li>💬 Customer support chatbots</li>
+                    <li>💻 Code generation (GitHub Copilot)</li>
+                </ul>
+                <ul>
+                    <li>✍️ Content creation</li>
+                    <li>📊 Data analysis & summarization</li>
+                </ul>
+            </div>
+
+            <div class="tip">
+                <strong>🔑 APIs are the bridge!</strong> They let your code talk to AI models. Like ordering food - you request, kitchen prepares, you receive! 🍕
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: OpenRouter Setup -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Step 1: Create Your OpenRouter.ai Account 🔑</h1>
+            
+            <div class="card">
+                <h3>Instructions:</h3>
+                <ol>
+                    <li>Go to: <span class="highlight">https://openrouter.ai</span></li>
+                    <li>Sign up for a <strong>free account</strong></li>
+                    <li>Navigate to: <strong>API Keys</strong> section</li>
+                    <li>Create a new API key</li>
+                    <li><strong>Copy your API key</strong> - you'll need it soon!</li>
+                </ol>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Keep it secret!</strong> Don't share your API key publicly. Treat it like a password!
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>Why OpenRouter? 🤔</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Access to multiple models</li>
+                        <li>✅ Simple, unified API</li>
+                        <li>✅ Free credits to start</li>
+                        <li>✅ Perfect for learning!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="big-text" style="margin-top: 30px;">
+                Take 5 minutes - raise your hand when done! ✋
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: GitHub Setup -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Step 2: Get the Workshop Code 📦</h1>
+            
+            <h3>1. Clone the Repository</h3>
+            <div class="code-block">
+git clone [repository-url]<br>
+cd 9hour_workshop_complete<br>
+cd day1
+            </div>
+
+            <h3>2. Install Dependencies</h3>
+            <div class="code-block">
+pip install openai python-dotenv requests
+            </div>
+
+            <h3>3. Create .env File</h3>
+            <div class="code-block">
+OPENAI_API_KEY=your-api-key-here
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Important:</strong> The `.env` file should NOT be committed to Git. It's already in `.gitignore` to keep your key safe!
+            </div>
+
+            <div class="tip">
+                <strong>💡 Don't have Git?</strong> Download the repository as a ZIP file from GitHub instead!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Exercise 1 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Your First API Call 🎯</h1>
+            
+            <div class="intro-box">
+                <h2>What You'll Learn:</h2>
+                <ul class="checklist">
+                    <li>Load environment variables securely</li>
+                    <li>Create an API client</li>
+                    <li>Make your first call to an LLM</li>
+                    <li>Extract and display the response</li>
+                </ul>
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>📁 File to Open:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+day1/exercises/<br>01_first_api_call_starter.py
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>⏱️ Time:</h3>
+                    <div class="big-number">20</div>
+                    <span style="font-size: 1.5em;">minutes</span>
+                </div>
+            </div>
+
+            <div class="big-text" style="margin-top: 30px;">
+                The foundation for everything else! 🏗️
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Exercise 1 Solution -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Solution Explained 💡</h1>
+            
+            <h3>1. Load API Key</h3>
+            <div class="code-block">
+from dotenv import load_dotenv<br>
+load_dotenv()<br>
+api_key = os.getenv("OPENAI_API_KEY")
+            </div>
+
+            <h3>2. Create Client</h3>
+            <div class="code-block">
+client = OpenAI(api_key=api_key)
+            </div>
+
+            <h3>3. Make API Call</h3>
+            <div class="code-block">
+response = client.chat.completions.create(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;model="gpt-4o-mini",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;messages=[<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"role": "user", "content": "Say hello..."}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;]<br>
+)
+            </div>
+
+            <h3>4. Extract Response</h3>
+            <div class="code-block">
+ai_message = response.choices[0].message.content<br>
+print("AI Response:", ai_message)
+            </div>
+
+            <div class="tip">
+                <strong>💡 Key Concept:</strong> The response structure supports conversations with multiple turns. We'll see more of this in Exercise 3!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Exercise 1 Your Turn -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Now It's Your Turn! 💻</h1>
+            
+            <div class="card">
+                <h3>Your Tasks:</h3>
+                <ol>
+                    <li>Open <span class="highlight">01_first_api_call_starter.py</span></li>
+                    <li>Fill in the TODOs</li>
+                    <li>Run it: <code>python 01_first_api_call_starter.py</code></li>
+                    <li>You should see the AI's response! 🎉</li>
+                </ol>
+            </div>
+
+            <div class="two-column">
+                <div class="warning">
+                    <h3>Common Issues:</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li>❌ "API key not found"<br>→ Check your .env file</li>
+                        <li>❌ "Module not found"<br>→ Run pip install</li>
+                        <li>❌ Connection error<br>→ Check internet</li>
+                    </ul>
+                </div>
+                <div class="tip">
+                    <h3>Need Help?</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li>✅ Check solution file</li>
+                        <li>✅ Ask me or neighbors</li>
+                        <li>✅ Compare your code</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="big-text" style="margin-top: 30px;">
+                Take your time! Understanding > Speed 🧠
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Exercise 2 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Prompt Engineering 🎨</h1>
+            
+            <div class="intro-box">
+                <h2>What You'll Learn:</h2>
+                <ul class="checklist">
+                    <li>System messages (giving AI a role)</li>
+                    <li>Few-shot prompting (teaching by example)</li>
+                    <li>Temperature parameter (controlling creativity)</li>
+                    <li>Structured outputs (getting JSON responses)</li>
+                </ul>
+            </div>
+
+            <div class="big-text" style="font-size: 2em; margin: 30px 0;">
+                The difference between good AI and great AI is in the prompts! 🎯
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>📁 File:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+02_prompt_engineering_starter.py
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>⏱️ Time:</h3>
+                    <div class="big-number">30</div>
+                    <span style="font-size: 1.5em;">minutes</span>
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>💼 Industry Insight:</strong> Companies hire "Prompt Engineers" who specialize in this. It's a real skill!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Exercise 2 Concepts -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Key Concepts 🧠</h1>
+            
+            <div class="two-column">
+                <div class="card">
+                    <h3>1. System Messages</h3>
+                    <div class="code-block" style="font-size: 0.9em;">
+{"role": "system",<br>
+ "content": "You are a friendly teacher..."}
+                    </div>
+                    <p style="font-size: 1.1em; margin-top: 10px;">
+                        Sets AI's personality/role. Provides context for all responses.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>2. Few-shot Prompting</h3>
+                    <div class="code-block" style="font-size: 0.9em;">
+Show examples →<br>
+AI learns pattern →<br>
+Consistent outputs
+                    </div>
+                    <p style="font-size: 1.1em; margin-top: 10px;">
+                        Teach by example. Very powerful for consistent results!
+                    </p>
+                </div>
+            </div>
+
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>3. Temperature</h3>
+                    <div class="code-block" style="font-size: 0.9em;">
+temperature=0.2  → Focused<br>
+temperature=1.5  → Creative
+                    </div>
+                    <p style="font-size: 1.1em; margin-top: 10px;">
+                        Range: 0.0 to 2.0<br>
+                        Lower = predictable<br>
+                        Higher = creative
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>4. Structured Outputs</h3>
+                    <div class="code-block" style="font-size: 0.9em;">
+"Format as JSON<br>
+with 'benefits' array"
+                    </div>
+                    <p style="font-size: 1.1em; margin-top: 10px;">
+                        Request specific formats in your prompt. AI will try to follow!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Exercise 2 Your Turn -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Implement Prompt Engineering 💻</h1>
+            
+            <div class="card">
+                <h3>Your Tasks:</h3>
+                <ol>
+                    <li>Open <span class="highlight">02_prompt_engineering_starter.py</span></li>
+                    <li>Implement 5 functions:
+                        <ul style="font-size: 0.9em; margin-top: 10px;">
+                            <li>basic_prompt()</li>
+                            <li>prompt_with_context()</li>
+                            <li>prompt_with_examples()</li>
+                            <li>temperature_experiment()</li>
+                            <li>structured_output_example()</li>
+                        </ul>
+                    </li>
+                    <li>Run it and observe the differences!</li>
+                </ol>
+            </div>
+
+            <div class="two-column">
+                <div class="tip">
+                    <h3>Experiment! 🧪</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li>Compare with/without system messages</li>
+                        <li>See how temperature affects creativity</li>
+                        <li>Notice how examples change style</li>
+                    </ul>
+                </div>
+                <div class="warning">
+                    <h3>⏱️ Time:</h3>
+                    <div class="big-number" style="font-size: 3em;">30</div>
+                    <span style="font-size: 1.3em;">minutes</span>
+                    <p style="margin-top: 15px; font-size: 1.1em;">
+                        Don't just copy - experiment! Try changing prompts and see what happens.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Exercise 3 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 3: Building a Chatbot with Memory 🧠</h1>
+            
+            <div class="intro-box">
+                <h2>What You'll Build:</h2>
+                <ul class="checklist">
+                    <li>A Python tutor chatbot</li>
+                    <li>Remembers what you talked about</li>
+                    <li>Can reference previous messages</li>
+                    <li>Has a personality (friendly tutor)</li>
+                    <li>Can show conversation history</li>
+                    <li>Can clear history and start fresh</li>
+                </ul>
+            </div>
+
+            <div class="big-text" style="font-size: 2em; margin: 30px 0;">
+                This is how real chatbots work! 💬
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>📁 File:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+03_chatbot_memory_starter.py
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>⏱️ Time:</h3>
+                    <div class="big-number">40</div>
+                    <span style="font-size: 1.5em;">minutes</span>
+                </div>
+            </div>
+
+            <div class="tip">
+                <strong>🔑 Key Insight:</strong> Every message sends the ENTIRE conversation history. That's how the AI remembers context!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Exercise 3 Solution -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 3: Solution Architecture 🏗️</h1>
+            
+            <h3>1. Class Structure</h3>
+            <div class="code-block" style="font-size: 1em;">
+class SimpleChatbot:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;def __init__(self, system_prompt):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;self.conversation_history = [<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"role": "system", "content": system_prompt}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
+            </div>
+
+            <h3>2. The Chat Method</h3>
+            <div class="code-block" style="font-size: 1em;">
+1. Add user message to history<br>
+2. Send ENTIRE history to API<br>
+3. Get response<br>
+4. Add assistant response to history<br>
+5. Return response
+            </div>
+
+            <h3>3. Why Send Full History?</h3>
+            <div class="card">
+                <p style="font-size: 1.3em; line-height: 1.6;">
+                    The API needs to see all previous messages to understand context. If you only sent the latest message, the AI wouldn't know what you're referring to!
+                </p>
+            </div>
+
+            <div class="tip">
+                <strong>💡 The Magic:</strong> Because we send the full history, you can ask follow-up questions like "Can you explain that differently?" and the chatbot knows what "that" refers to!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Exercise 3 Your Turn -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 3: Build Your Chatbot! 💻</h1>
+            
+            <div class="card">
+                <h3>Your Tasks:</h3>
+                <ol>
+                    <li>Open <span class="highlight">03_chatbot_memory_starter.py</span></li>
+                    <li>Implement the SimpleChatbot class:
+                        <ul style="font-size: 0.9em; margin-top: 10px;">
+                            <li>__init__() - Initialize with system message</li>
+                            <li>chat() - Add message, call API, return response</li>
+                            <li>clear_history() - Reset conversation</li>
+                        </ul>
+                    </li>
+                    <li>Test it and have a conversation!</li>
+                </ol>
+            </div>
+
+            <div class="two-column">
+                <div class="card">
+                    <h3>Test Scenarios:</h3>
+                    <ul style="font-size: 1.1em;">
+                        <li>✅ Ask a question</li>
+                        <li>✅ Ask a follow-up</li>
+                        <li>✅ Check if it remembers</li>
+                        <li>✅ View history</li>
+                        <li>✅ Clear and restart</li>
+                    </ul>
+                </div>
+                <div class="warning">
+                    <h3>⏱️ Time:</h3>
+                    <div class="big-number" style="font-size: 3em;">40</div>
+                    <span style="font-size: 1.3em;">minutes</span>
+                    <p style="margin-top: 15px; font-size: 1.1em;">
+                        This is the most complex exercise, but you've got all the building blocks!
+                    </p>
+                </div>
+            </div>
+
+            <div class="tip" style="margin-top: 30px;">
+                <strong>🎯 The Test:</strong> If you ask "Can you give me a Python example?" after asking about variables, and it gives a variable example (not a loop), then your memory is working! 🎉
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Wrap Up -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Congratulations! 🎉</h1>
+            
+            <div class="intro-box">
+                <h2>What You've Accomplished:</h2>
+                <ul class="checklist">
+                    <li>Made your first API call to an LLM</li>
+                    <li>Learned prompt engineering techniques</li>
+                    <li>Built a chatbot with conversation memory</li>
+                    <li>Understood how AI APIs work in practice</li>
+                </ul>
+            </div>
+
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Key Takeaways:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ AI is a tool you can program</li>
+                        <li>✅ Prompt engineering matters</li>
+                        <li>✅ Context = conversation history</li>
+                        <li>✅ APIs bridge code & AI</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Next Steps:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>📚 Review solutions</li>
+                        <li>🧪 Experiment more</li>
+                        <li>⭐ Try bonus exercise</li>
+                        <li>🚀 Prepare for Day 2!</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="big-text" style="margin-top: 40px; font-size: 2em;">
+                You're not just using AI - you're building it! 🚀
+            </div>
+
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💬 Questions?</strong> Let's discuss what you learned and any questions you have!
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slideContainers = document.querySelectorAll('.slide-container');
+        const totalSlides = slideContainers.length;
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slideContainers[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slideContainers[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                previousSlide();
+            }
+        }
+    </script>
+</body>
+</html>
+

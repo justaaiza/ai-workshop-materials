@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 2: n8n Automation & AI Workflows</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d193fb 0%, #ae57f5 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .slides-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #f5576c;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #b144bb;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 2em;
+            color: #f5576c;
+            margin: 30px 0 20px 0;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        ul, ol {
+            font-size: 1.5em;
+            line-height: 1.8;
+            margin-left: 40px;
+            margin-bottom: 30px;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .big-number {
+            font-size: 4em;
+            color: #f5576c;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #f5576c;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #f5576c;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #f5576c;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #a693fb 0%, #9957f5 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .intro-box h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .intro-box ul {
+            color: white;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li:before {
+            content: "✅ ";
+            margin-right: 10px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .question-box {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #f5576c;
+        }
+
+        .big-text {
+            font-size: 2.5em;
+            text-align: center;
+            color: #f5576c;
+            font-weight: bold;
+            margin: 40px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 1.3em;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #f5576c;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Print Styles - Show all slides on separate pages with preserved formatting */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                background: linear-gradient(135deg, #d193fb 0%, #ae57f5 100%) !important;
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .navigation,
+            .slide-counter {
+                display: none !important;
+            }
+
+            .slides-wrapper {
+                position: static;
+                width: 100%;
+                height: auto;
+                background: transparent;
+            }
+
+            .slide-container {
+                position: static !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                display: block !important;
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
+                page-break-after: always;
+                page-break-inside: avoid;
+                padding: 60px;
+                margin: 0;
+                background: transparent;
+            }
+
+            .slide-container:last-child {
+                page-break-after: auto;
+            }
+
+            .slide {
+                background: white !important;
+                border-radius: 20px !important;
+                padding: 60px !important;
+                max-width: 1200px !important;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+                page-break-inside: avoid;
+                animation: none;
+                margin: 0 auto;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h1 {
+                font-size: 3.5em !important;
+                color: #f5576c !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h2 {
+                font-size: 2.5em !important;
+                color: #b144bb !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h3 {
+                font-size: 2em !important;
+                color: #f5576c !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .subtitle {
+                font-size: 1.8em !important;
+                color: #666 !important;
+            }
+
+            ul, ol {
+                font-size: 1.5em !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .code-block {
+                background: #f4f4f4 !important;
+                border-left: 4px solid #f5576c !important;
+                padding: 20px !important;
+                font-size: 1.2em !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .highlight {
+                background: #fff3cd !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-number {
+                font-size: 4em !important;
+                color: #f5576c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .two-column {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 40px !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                background: #f8f9fa !important;
+                padding: 30px !important;
+                border-radius: 12px !important;
+                border-left: 5px solid #f5576c !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box {
+                background: linear-gradient(135deg, #a693fb 0%, #9957f5 100%) !important;
+                color: white !important;
+                padding: 40px !important;
+                border-radius: 15px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box h2 {
+                color: white !important;
+            }
+
+            .intro-box ul {
+                color: white !important;
+            }
+
+            .warning {
+                background: #fff3cd !important;
+                border-left: 5px solid #ffc107 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .tip {
+                background: #d1ecf1 !important;
+                border-left: 5px solid #17a2b8 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .question-box {
+                background: #e7f3ff !important;
+                padding: 30px !important;
+                border-radius: 15px !important;
+                border: 3px solid #f5576c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-text {
+                font-size: 2.5em !important;
+                color: #f5576c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .comparison-table {
+                page-break-inside: avoid;
+            }
+
+            .comparison-table th {
+                background: #f5576c !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            @page {
+                size: letter;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">20</span>
+    </div>
+
+    <div class="slides-wrapper">
+    <!-- SLIDE 1: Welcome Back -->
+    <div class="slide-container active">
+        <div class="slide">
+            <h1>Welcome Back! 🎉</h1>
+            <div class="subtitle">Day 2: n8n Automation & AI Workflows</div>
+            <div class="intro-box">
+                <h2>Today's Journey:</h2>
+                <ul class="checklist">
+                    <li>From Code → No-Code Automation</li>
+                    <li>Build workflows visually with n8n</li>
+                    <li>Create real-world AI automations</li>
+                    <li>Connect services without coding!</li>
+                </ul>
+            </div>
+            <div class="big-text">
+                Same Power, Less Code! ⚡
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Day 1 Recap -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Quick Recap: What We Learned 🧠</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Day 1 Achievements:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Made API calls to LLMs</li>
+                        <li>✅ Learned prompt engineering</li>
+                        <li>✅ Built chatbot with memory</li>
+                        <li>✅ Understood AI fundamentals</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Today We'll:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🚀 Build same things faster</li>
+                        <li>🚀 Connect multiple services</li>
+                        <li>🚀 Create real automations</li>
+                        <li>🚀 No code required!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 Key Question:</strong> Can we build the same chatbot from Day 1 in 15 minutes instead of 1 hour? Let's find out! 🎯
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: What is Automation? -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>What is Automation? 🤖</h1>
+            <div class="big-text" style="font-size: 2em; margin-bottom: 30px;">
+                Doing repetitive tasks automatically, so you don't have to!
+            </div>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Manual Work 😓</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Check email → Read → Reply</li>
+                        <li>Download file → Process → Upload</li>
+                        <li>Copy data → Paste → Format</li>
+                        <li>Repeat... Repeat... Repeat...</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Automated Work 🎉</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Email arrives → Auto-analyze → Draft reply</li>
+                        <li>File uploaded → Auto-process → Save result</li>
+                        <li>Data changes → Auto-sync → Notify</li>
+                        <li>You focus on important stuff!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="intro-box" style="margin-top: 30px;">
+                <h2>Real-World Examples:</h2>
+                <ul style="font-size: 1.2em;">
+                    <li>📧 Email assistant that drafts responses</li>
+                    <li>📊 Data sync between tools</li>
+                    <li>💬 Chatbot that answers questions</li>
+                    <li>📝 Document processing workflows</li>
+                    <li>🔔 Smart notifications and alerts</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: What is n8n? -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>What is n8n? 🎨</h1>
+            <div class="intro-box">
+                <h2>n8n = Visual Workflow Automation</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    Connect services, automate tasks, build workflows - all with a visual interface. No coding required!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Think of it as:</h3>
+                    <ul style="font-size: 1.3em;">
+                        <li>🔗 LEGO blocks for automation</li>
+                        <li>🎯 Connect services visually</li>
+                        <li>⚡ Build workflows fast</li>
+                        <li>🚀 Same power as code, easier!</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>What You Can Do:</h3>
+                    <ul style="font-size: 1.3em;">
+                        <li>Connect 400+ services</li>
+                        <li>Build complex workflows</li>
+                        <li>Automate repetitive tasks</li>
+                        <li>Integrate AI into everything!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 Popular Alternatives:</strong> Zapier, Make.com, Microsoft Power Automate. n8n is open-source and powerful!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Code vs No-Code -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Code vs No-Code: The Comparison 📊</h1>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Code (Day 1)</th>
+                        <th>n8n (Day 2)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Time to Build</strong></td>
+                        <td>~1 hour</td>
+                        <td>~15 minutes ⚡</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Visual</strong></td>
+                        <td>❌ Text-based</td>
+                        <td>✅ Drag & drop</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Learning Curve</strong></td>
+                        <td>Steeper 📈</td>
+                        <td>Gentler 📉</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Flexibility</strong></td>
+                        <td>✅ Very high</td>
+                        <td>✅ High</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Integrations</strong></td>
+                        <td>Manual coding</td>
+                        <td>✅ Built-in (400+)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Best For</strong></td>
+                        <td>Complex logic, custom needs</td>
+                        <td>Quick automations, integrations</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="big-text" style="margin-top: 30px; font-size: 1.8em;">
+                Both have their place! Use the right tool for the job 🛠️
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: n8n Setup -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Setting Up n8n 🚀</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Option 1: n8n Cloud ☁️</h3>
+                    <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>Recommended for Workshop!</strong></p>
+                    <ol style="font-size: 1.2em;">
+                        <li>Go to <span class="highlight">n8n.cloud</span></li>
+                        <li>Sign up for free account</li>
+                        <li>Get your workspace URL</li>
+                        <li>Start building! 🎉</li>
+                    </ol>
+                    <div class="tip" style="margin-top: 20px;">
+                        ✅ No installation<br>
+                        ✅ Access from anywhere<br>
+                        ✅ Free tier available
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Option 2: Local Installation 💻</h3>
+                    <p style="font-size: 1.3em; margin-bottom: 20px;"><strong>For offline work</strong></p>
+                    <div class="code-block" style="font-size: 1.1em;">
+npx n8n<br><br>
+# Access at:<br>
+http://localhost:5678
+                    </div>
+                    <div class="tip" style="margin-top: 20px;">
+                        ✅ Works offline<br>
+                        ✅ No limits<br>
+                        ⚠️ Requires Node.js
+                    </div>
+                </div>
+            </div>
+            <div class="warning" style="margin-top: 30px;">
+                <strong>⏱️ Let's do this together!</strong> Take 10-15 minutes to get everyone set up. Raise your hand if you need help!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: n8n Interface Tour -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>n8n Interface: Quick Tour 🗺️</h1>
+            <div class="intro-box">
+                <h2>Key Areas:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li><strong>Workflows</strong> - Your automation projects</li>
+                    <li><strong>Credentials</strong> - API keys & auth (like .env file)</li>
+                    <li><strong>Executions</strong> - See workflow runs & logs</li>
+                    <li><strong>Canvas</strong> - Where you build (drag & drop)</li>
+                </ul>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Building a Workflow:</h3>
+                    <ol style="font-size: 1.2em;">
+                        <li>Click <strong>+</strong> to create workflow</li>
+                        <li>Drag nodes from left panel</li>
+                        <li>Connect nodes (output → input)</li>
+                        <li>Configure each node</li>
+                        <li>Test with "Execute Workflow"</li>
+                        <li>Toggle <strong>Active</strong> to run!</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>Common Nodes:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🔗 <strong>Webhook</strong> - Receive HTTP requests</li>
+                        <li>🤖 <strong>OpenAI</strong> - AI/LLM calls</li>
+                        <li>📧 <strong>Gmail</strong> - Email operations</li>
+                        <li>💬 <strong>Slack</strong> - Messaging</li>
+                        <li>📊 <strong>HTTP Request</strong> - Call any API</li>
+                        <li>🔀 <strong>IF/Switch</strong> - Conditional logic</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Exercise 1 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Basic AI Chatbot 🤖</h1>
+            <div class="intro-box">
+                <h2>What We'll Build:</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    The same chatbot from Day 1, but built in <strong>15 minutes</strong> instead of 1 hour!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Workflow Steps:</h3>
+                    <ol style="font-size: 1.2em;">
+                        <li>Webhook receives message</li>
+                        <li>OpenAI processes it</li>
+                        <li>Response sent back</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>Learning Goals:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Understand n8n workflow structure</li>
+                        <li>✅ Use Webhook nodes</li>
+                        <li>✅ Connect OpenAI node</li>
+                        <li>✅ Compare code vs no-code</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 30px;">
+                File: <span class="highlight">01_basic_chatbot.json</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Exercise 1 Steps -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Step-by-Step 📝</h1>
+            <div class="card">
+                <h3>Step 1: Import Workflow</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>In n8n, click <strong>Workflows</strong></li>
+                    <li>Click <strong>Import from File</strong></li>
+                    <li>Select <code>01_basic_chatbot.json</code></li>
+                    <li>Workflow appears in your workspace!</li>
+                </ol>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 2: Add OpenAI Credential</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Click <strong>Credentials</strong> (left sidebar)</li>
+                    <li>Click <strong>Add Credential</strong></li>
+                    <li>Search for <strong>OpenAI</strong></li>
+                    <li>Enter your API key (from Day 1)</li>
+                    <li>Save it!</li>
+                </ol>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 3: Connect & Activate</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Open the workflow</li>
+                    <li>Click on <strong>OpenAI Chat</strong> node</li>
+                    <li>Select your credential</li>
+                    <li>Toggle <strong>Active</strong> switch (top right)</li>
+                    <li>Copy the webhook URL</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Exercise 1 Testing -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Test Your Chatbot! 🧪</h1>
+            <div class="card">
+                <h3>Method 1: Using curl</h3>
+                <div class="code-block">
+curl -X POST YOUR_WEBHOOK_URL \<br>
+&nbsp;&nbsp;-H "Content-Type: application/json" \<br>
+&nbsp;&nbsp;-d '{"message": "Hello! What can you do?"}'
+                </div>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Method 2: Using Test HTML File</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Open <code>test_webhook_chatbot.html</code></li>
+                    <li>Replace <code>YOUR_WEBHOOK_URL</code> with your actual URL</li>
+                    <li>Open in browser</li>
+                    <li>Type a message and click Send!</li>
+                </ol>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 Pro Tip:</strong> Use "Execute Workflow" button to test without activating. Great for debugging!
+            </div>
+            <div class="big-text" style="margin-top: 30px;">
+                Did it work? 🎉 Same chatbot, way faster!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Understanding the Workflow -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Understanding the Workflow 🧠</h1>
+            <div class="intro-box">
+                <h2>Workflow Flow:</h2>
+                <div style="font-size: 2em; text-align: center; margin: 30px 0;">
+                    Webhook → OpenAI → Respond to Webhook
+                </div>
+            </div>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Node 1: Webhook</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Receives HTTP POST requests</li>
+                        <li>Extracts message from JSON</li>
+                        <li>Passes to next node</li>
+                        <li>Like a door for your workflow!</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Node 2: OpenAI Chat</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Sends message to AI</li>
+                        <li>Uses your API key</li>
+                        <li>Returns AI response</li>
+                        <li>Same as Day 1, but visual!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Node 3: Respond to Webhook</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Sends response back to caller</li>
+                    <li>Formats as JSON</li>
+                    <li>Completes the request</li>
+                </ul>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>🔑 Key Insight:</strong> Each node does one thing. Connect them to build complex workflows!
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Customization Ideas -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Customization Ideas 🎨</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Try These:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Change AI personality<br>
+                            <span style="font-size: 0.9em; color: #666;">Edit system message in OpenAI node</span></li>
+                        <li>Add user info<br>
+                            <span style="font-size: 0.9em; color: #666;">Include name, timestamp, etc.</span></li>
+                        <li>Add error handling<br>
+                            <span style="font-size: 0.9em; color: #666;">Use IF node to check for errors</span></li>
+                        <li>Add logging<br>
+                            <span style="font-size: 0.9em; color: #666;">Save conversations to database</span></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Experiment With:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Different AI models</li>
+                        <li>Temperature settings</li>
+                        <li>Response formatting</li>
+                        <li>Multiple webhooks</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning" style="margin-top: 30px;">
+                <strong>⏱️ Take 10-15 minutes</strong> to experiment and customize your chatbot. Break things, learn, have fun! 🚀
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Exercise 2 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Email AI Assistant 📧</h1>
+            <div class="intro-box">
+                <h2>Real-World Automation!</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    Build an automation that reads emails, analyzes them with AI, and creates draft responses automatically!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>What It Does:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>📥 Watches for new emails</li>
+                        <li>🤖 Analyzes with AI</li>
+                        <li>✍️ Creates draft response</li>
+                        <li>💾 Saves to Gmail drafts</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Learning Goals:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Use Gmail trigger nodes</li>
+                        <li>✅ Process email content</li>
+                        <li>✅ Integrate multiple services</li>
+                        <li>✅ Build real automation</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 30px;">
+                File: <span class="highlight">02_email_ai_assistant.json</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Exercise 2 Workflow -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Workflow Structure 🔄</h1>
+            <div class="intro-box">
+                <h2>Workflow Flow:</h2>
+                <div style="font-size: 1.8em; text-align: center; margin: 30px 0; line-height: 1.8;">
+                    New Email → Get Full Email → Extract Content →<br>
+                    AI Analyze → Save Draft
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Step 1: Gmail Trigger</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Watches for new emails</li>
+                        <li>Triggers automatically</li>
+                        <li>Passes email ID</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Step 2: Get Email</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Retrieves full content</li>
+                        <li>Gets subject, body, sender</li>
+                        <li>Prepares for processing</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Step 3: AI Analysis</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>OpenAI analyzes email</li>
+                        <li>Generates response/summary</li>
+                        <li>Uses context-aware prompts</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Step 4: Save Draft</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Creates email draft</li>
+                        <li>Saves to Gmail</li>
+                        <li>Ready for you to review!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Exercise 2 Setup -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Setup Steps 🛠️</h1>
+            <div class="card">
+                <h3>Step 1: Gmail OAuth Setup</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Go to <strong>Credentials</strong> in n8n</li>
+                    <li>Add <strong>Gmail OAuth2</strong> credential</li>
+                    <li>Follow OAuth setup (instructor may help)</li>
+                    <li>Authorize Gmail access</li>
+                </ol>
+                <div class="tip" style="margin-top: 15px;">
+                    <strong>💡 Note:</strong> For workshop, instructor may provide pre-configured credentials to save time!
+                </div>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 2: Import & Configure</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Import <code>02_email_ai_assistant.json</code></li>
+                    <li>Connect Gmail credentials to all Gmail nodes</li>
+                    <li>Connect OpenAI credential</li>
+                    <li>Toggle <strong>Active</strong> switch</li>
+                </ol>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 3: Test It!</h3>
+                <ol style="font-size: 1.2em;">
+                    <li>Send yourself a test email</li>
+                    <li>Wait a few seconds</li>
+                    <li>Check Gmail drafts folder</li>
+                    <li>You should see AI-generated draft! 🎉</li>
+                </ol>
+            </div>
+            <div class="warning" style="margin-top: 30px;">
+                <strong>⚠️ Safety First:</strong> Always use <code>sendToDraft: true</code> - never auto-send emails! Review drafts before sending.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Exercise 2 Enhancements -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Enhancement Ideas 🚀</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Add Smart Features:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li><strong>Sentiment Check</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">Route urgent emails differently</span></li>
+                        <li><strong>Smart Routing</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">Filter spam, prioritize important</span></li>
+                        <li><strong>Slack Notifications</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">Notify team of important emails</span></li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Customize AI Prompts:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li><strong>Summaries:</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">"Summarize in 3 bullet points"</span></li>
+                        <li><strong>Responses:</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">"Generate professional response"</span></li>
+                        <li><strong>Categorization:</strong><br>
+                            <span style="font-size: 0.9em; color: #666;">"Is this urgent? Categorize it"</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="intro-box" style="margin-top: 30px;">
+                <h2>Real-World Use Cases:</h2>
+                <ul style="font-size: 1.2em;">
+                    <li>💼 Customer support email analysis</li>
+                    <li>📅 Meeting request auto-responses</li>
+                    <li>🧾 Invoice processing automation</li>
+                    <li>📰 Newsletter summarization</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: More Automation Ideas -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>More Automation Ideas 💡</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Data & Integrations:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>📊 Sync data between tools</li>
+                        <li>📥 Auto-import from APIs</li>
+                        <li>💾 Backup to cloud storage</li>
+                        <li>🔄 Keep databases in sync</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Notifications & Alerts:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🔔 Smart Slack notifications</li>
+                        <li>📧 Email digests</li>
+                        <li>📱 SMS alerts for important events</li>
+                        <li>💬 Discord/Teams integration</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Content & Processing:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>📝 Auto-generate reports</li>
+                        <li>🖼️ Image processing workflows</li>
+                        <li>📄 Document conversion</li>
+                        <li>🎬 Video processing pipelines</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>AI-Powered:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🤖 Multi-step AI workflows</li>
+                        <li>🧠 Decision-making automations</li>
+                        <li>💬 Multi-channel chatbots</li>
+                        <li>📊 AI data analysis pipelines</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 The Limit is Your Imagination!</strong> n8n connects 400+ services. What can you automate?
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: When to Use What? -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>When to Use Code vs n8n? 🤔</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Use Code When: 💻</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Complex business logic</li>
+                        <li>Custom algorithms needed</li>
+                        <li>Performance critical</li>
+                        <li>Full control required</li>
+                        <li>Building products/apps</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Use n8n When: 🎨</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Quick automations</li>
+                        <li>Connecting services</li>
+                        <li>Prototyping fast</li>
+                        <li>Non-technical team</li>
+                        <li>Workflow automation</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="intro-box" style="margin-top: 30px;">
+                <h2>Best Practice: Use Both! 🎯</h2>
+                <ul style="font-size: 1.3em;">
+                    <li>Build core logic in code</li>
+                    <li>Connect & automate with n8n</li>
+                    <li>Best of both worlds!</li>
+                </ul>
+            </div>
+            <div class="big-text" style="margin-top: 30px; font-size: 1.8em;">
+                No-code doesn't mean no thinking! 🧠<br>
+                You still need to design workflows and understand logic.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Best Practices -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>n8n Best Practices 🎓</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Workflow Design:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Test each node as you build</li>
+                        <li>✅ Use "Execute Workflow" for testing</li>
+                        <li>✅ Add error handling (IF nodes)</li>
+                        <li>✅ Name nodes clearly</li>
+                        <li>✅ Add comments/notes</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Security & Safety:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🔒 Store credentials securely</li>
+                        <li>⚠️ Never auto-send emails</li>
+                        <li>🔍 Review before sending</li>
+                        <li>🧪 Test with your own data first</li>
+                        <li>📝 Document your workflows</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Performance:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>⚡ Use webhooks efficiently</li>
+                        <li>🔄 Avoid infinite loops</li>
+                        <li>💾 Cache when possible</li>
+                        <li>📊 Monitor executions</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Maintenance:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>💾 Export workflows regularly</li>
+                        <li>📚 Keep documentation updated</li>
+                        <li>🔄 Version control workflows</li>
+                        <li>🧹 Clean up old executions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Wrap Up -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Congratulations! 🎉</h1>
+            <div class="intro-box">
+                <h2>What You've Accomplished:</h2>
+                <ul class="checklist">
+                    <li>Set up n8n (cloud or local)</li>
+                    <li>Built AI chatbot visually (15 min vs 1 hour!)</li>
+                    <li>Created email AI assistant automation</li>
+                    <li>Understood code vs no-code trade-offs</li>
+                    <li>Learned workflow automation basics</li>
+                </ul>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Key Takeaways:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Automation saves time</li>
+                        <li>✅ Visual workflows are powerful</li>
+                        <li>✅ n8n connects 400+ services</li>
+                        <li>✅ Code and no-code both have place</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Next Steps:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🚀 Experiment with more workflows</li>
+                        <li>🔗 Explore n8n integrations</li>
+                        <li>💡 Build your own automations</li>
+                        <li>📚 Check n8n community & docs</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 40px; font-size: 2em;">
+                You're now an automation builder! 🚀
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💬 Questions?</strong> Let's discuss what you learned and any questions you have!
+            </div>
+            <div class="tip" style="margin-top: 20px;">
+                <strong>📚 Resources:</strong> n8n Docs (docs.n8n.io) | Community (community.n8n.io) | Workflow Templates (n8n.io/workflows)
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slideContainers = document.querySelectorAll('.slide-container');
+        const totalSlides = slideContainers.length;
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slideContainers[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slideContainers[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                previousSlide();
+            }
+        }
+    </script>
+</body>
+</html>
+

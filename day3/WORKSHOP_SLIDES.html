@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day 3: Agentic AI - AI Agents That Think and Act</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #333;
+            overflow: hidden;
+        }
+
+        .slides-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .slide-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .slide-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 60px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            color: #4facfe;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #00f2fe;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 2em;
+            color: #4facfe;
+            margin: 30px 0 20px 0;
+        }
+
+        .subtitle {
+            font-size: 1.8em;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        ul, ol {
+            font-size: 1.5em;
+            line-height: 1.8;
+            margin-left: 40px;
+            margin-bottom: 30px;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f4f4f4;
+            border-left: 4px solid #4facfe;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            overflow-x: auto;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .big-number {
+            font-size: 4em;
+            color: #4facfe;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 5px solid #4facfe;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #4facfe;
+        }
+
+        .intro-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .intro-box h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .intro-box ul {
+            color: white;
+        }
+
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li:before {
+            content: "✅ ";
+            margin-right: 10px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .question-box {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            border: 3px solid #4facfe;
+        }
+
+        .big-text {
+            font-size: 2.5em;
+            text-align: center;
+            color: #4facfe;
+            font-weight: bold;
+            margin: 40px 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            font-size: 1.3em;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: #4facfe;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .flow-diagram {
+            text-align: center;
+            font-size: 1.8em;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        /* Print Styles - Show all slides on separate pages with preserved formatting */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            body {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .navigation,
+            .slide-counter {
+                display: none !important;
+            }
+
+            .slides-wrapper {
+                position: static;
+                width: 100%;
+                height: auto;
+                background: transparent;
+            }
+
+            .slide-container {
+                position: static !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                display: block !important;
+                width: 100%;
+                height: auto;
+                min-height: 100vh;
+                page-break-after: always;
+                page-break-inside: avoid;
+                padding: 60px;
+                margin: 0;
+                background: transparent;
+            }
+
+            .slide-container:last-child {
+                page-break-after: auto;
+            }
+
+            .slide {
+                background: white !important;
+                border-radius: 20px !important;
+                padding: 60px !important;
+                max-width: 1200px !important;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3) !important;
+                page-break-inside: avoid;
+                animation: none;
+                margin: 0 auto;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h1 {
+                font-size: 3.5em !important;
+                color: #4facfe !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h2 {
+                font-size: 2.5em !important;
+                color: #00f2fe !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            h3 {
+                font-size: 2em !important;
+                color: #4facfe !important;
+                page-break-after: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .subtitle {
+                font-size: 1.8em !important;
+                color: #666 !important;
+            }
+
+            ul, ol {
+                font-size: 1.5em !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .code-block {
+                background: #f4f4f4 !important;
+                border-left: 4px solid #4facfe !important;
+                padding: 20px !important;
+                font-size: 1.2em !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .highlight {
+                background: #fff3cd !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-number {
+                font-size: 4em !important;
+                color: #4facfe !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .two-column {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 40px !important;
+                page-break-inside: avoid;
+            }
+
+            .card {
+                background: #f8f9fa !important;
+                padding: 30px !important;
+                border-radius: 12px !important;
+                border-left: 5px solid #4facfe !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box {
+                background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+                color: white !important;
+                padding: 40px !important;
+                border-radius: 15px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .intro-box h2 {
+                color: white !important;
+            }
+
+            .intro-box ul {
+                color: white !important;
+            }
+
+            .warning {
+                background: #fff3cd !important;
+                border-left: 5px solid #ffc107 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .tip {
+                background: #d1ecf1 !important;
+                border-left: 5px solid #17a2b8 !important;
+                padding: 20px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .question-box {
+                background: #e7f3ff !important;
+                padding: 30px !important;
+                border-radius: 15px !important;
+                border: 3px solid #4facfe !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .big-text {
+                font-size: 2.5em !important;
+                color: #4facfe !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .comparison-table {
+                page-break-inside: avoid;
+            }
+
+            .comparison-table th {
+                background: #4facfe !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .flow-diagram {
+                page-break-inside: avoid;
+            }
+
+            @page {
+                size: letter;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">22</span>
+    </div>
+
+    <div class="slides-wrapper">
+    <!-- SLIDE 1: Welcome -->
+    <div class="slide-container active">
+        <div class="slide">
+            <h1>Welcome to Day 3! 🚀</h1>
+            <div class="subtitle">Agentic AI: AI Agents That Think and Act</div>
+            <div class="intro-box">
+                <h2>Today's Journey:</h2>
+                <ul class="checklist">
+                    <li>From Chatbots → Intelligent Agents</li>
+                    <li>Function Calling & Tool Use</li>
+                    <li>Multi-step Reasoning</li>
+                    <li>Build Agents That Can Act!</li>
+                </ul>
+            </div>
+            <div class="big-text">
+                AI That Can Think, Plan, and Execute! 🧠⚡
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Recap -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Quick Recap: Days 1 & 2 🧠</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Day 1: Basics</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ API calls to LLMs</li>
+                        <li>✅ Prompt engineering</li>
+                        <li>✅ Chatbots with memory</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Day 2: Automation</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ n8n workflows</li>
+                        <li>✅ Visual automation</li>
+                        <li>✅ Service integrations</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="intro-box" style="margin-top: 30px;">
+                <h2>Today: The Next Level! 🎯</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    We've built chatbots that respond. Now let's build agents that can <strong>think, plan, and act</strong> using tools!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: What is an AI Agent? -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>What is an AI Agent? 🤖</h1>
+            <div class="big-text" style="font-size: 2em; margin-bottom: 30px;">
+                An AI that can <strong>reason, plan, and use tools</strong> to accomplish tasks
+            </div>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Chatbot (Day 1) 💬</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Responds to questions</li>
+                        <li>Uses training data</li>
+                        <li>No actions/tools</li>
+                        <li>Reactive</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>AI Agent (Day 3) 🎯</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Plans multi-step tasks</li>
+                        <li>Uses tools/functions</li>
+                        <li>Makes decisions</li>
+                        <li>Proactive & autonomous</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 Key Difference:</strong> Agents can <strong>do things</strong>, not just talk about them! They can search, calculate, create files, call APIs, and more.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Real-World Examples -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Real-World Agent Examples 🌍</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>AutoGPT / BabyAGI</h3>
+                    <p style="font-size: 1.2em;">
+                        Autonomous agents that can plan and execute complex tasks across multiple steps
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>GitHub Copilot Agents</h3>
+                    <p style="font-size: 1.2em;">
+                        AI coding assistants that can read code, search docs, and write code
+                    </p>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Customer Service Agents</h3>
+                    <p style="font-size: 1.2em;">
+                        Agents that can look up orders, process refunds, and update databases
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Research Agents</h3>
+                    <p style="font-size: 1.2em;">
+                        Agents that search, analyze, and summarize information from multiple sources
+                    </p>
+                </div>
+            </div>
+            <div class="intro-box" style="margin-top: 30px;">
+                <h2>Common Pattern:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li>User asks a question or gives a task</li>
+                    <li>Agent plans what to do</li>
+                    <li>Agent uses tools to gather information</li>
+                    <li>Agent reasons about the results</li>
+                    <li>Agent provides answer or completes task</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Core Concepts -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Core Agent Concepts 🧠</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>1. Function Calling / Tool Use</h3>
+                    <p style="font-size: 1.2em; margin-top: 10px;">
+                        AI can request to call functions you define. Like giving AI superpowers!
+                    </p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li>Calculator functions</li>
+                        <li>Web search</li>
+                        <li>File operations</li>
+                        <li>API calls</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>2. Planning</h3>
+                    <p style="font-size: 1.2em; margin-top: 10px;">
+                        Agent breaks down complex tasks into steps
+                    </p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li>Analyzes the request</li>
+                        <li>Decides what tools to use</li>
+                        <li>Plans the sequence</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>3. Execution</h3>
+                    <p style="font-size: 1.2em; margin-top: 10px;">
+                        Agent calls tools and processes results
+                    </p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li>Calls functions</li>
+                        <li>Gets results</li>
+                        <li>Processes information</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>4. Reflection</h3>
+                    <p style="font-size: 1.2em; margin-top: 10px;">
+                        Agent evaluates progress and adjusts
+                    </p>
+                    <ul style="font-size: 1.1em; margin-top: 15px;">
+                        <li>Checks if task is complete</li>
+                        <li>Decides if more steps needed</li>
+                        <li>Handles errors</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: Agent Loop -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>The Agent Loop 🔄</h1>
+            <div class="flow-diagram">
+                User Request<br>
+                ↓<br>
+                <strong>PLAN</strong> → Agent decides what to do<br>
+                ↓<br>
+                <strong>EXECUTE</strong> → Agent calls tools<br>
+                ↓<br>
+                <strong>REFLECT</strong> → Agent evaluates results<br>
+                ↓<br>
+                More steps needed? → Yes → Back to PLAN<br>
+                ↓ No<br>
+                Final Answer / Task Complete ✅
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 This loop continues until:</strong> The task is complete, maximum iterations reached, or an error occurs
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: Function Calling Basics -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Function Calling: The Foundation 🛠️</h1>
+            <div class="intro-box">
+                <h2>How It Works:</h2>
+                <ol style="font-size: 1.3em;">
+                    <li>You define functions/tools (what AI can do)</li>
+                    <li>You describe them to the AI (name, parameters, description)</li>
+                    <li>AI decides when to call them</li>
+                    <li>You execute the function</li>
+                    <li>You send result back to AI</li>
+                    <li>AI uses result to respond</li>
+                </ol>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Example Function Definition:</h3>
+                <div class="code-block" style="font-size: 1em;">
+{<br>
+&nbsp;&nbsp;"name": "get_weather",<br>
+&nbsp;&nbsp;"description": "Get weather for a location",<br>
+&nbsp;&nbsp;"parameters": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"type": "object",<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"properties": {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"location": {"type": "string"}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: Exercise 1 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Basic Function Calling 🎯</h1>
+            <div class="intro-box">
+                <h2>What You'll Build:</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    A simple example where AI can call a weather function to answer questions!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Learning Goals:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Understand function calling API</li>
+                        <li>✅ Define tools for AI</li>
+                        <li>✅ Handle function calls</li>
+                        <li>✅ Send results back to AI</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>File:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+01_basic_function_calling_starter.py
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div class="big-number" style="font-size: 2.5em;">30</div>
+                        <span style="font-size: 1.3em;">minutes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9: Exercise 1 Steps -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Step-by-Step 📝</h1>
+            <div class="card">
+                <h3>Step 1: Define the Function</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Create a function (e.g., <code>get_weather</code>)</li>
+                    <li>Define its schema (name, description, parameters)</li>
+                    <li>Tell AI what it does and what parameters it needs</li>
+                </ul>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 2: Make API Call with Functions</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Add <code>functions</code> parameter to API call</li>
+                    <li>Set <code>function_call="auto"</code> (let AI decide)</li>
+                    <li>AI will decide if it needs to call the function</li>
+                </ul>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>Step 3: Handle Function Call</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>Check if <code>message.function_call</code> exists</li>
+                    <li>Extract function name and arguments</li>
+                    <li>Execute the function</li>
+                    <li>Send result back to AI</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: Exercise 1 Key Code -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 1: Key Code Patterns 💻</h1>
+            <div class="card">
+                <h3>1. Define Function Schema</h3>
+                <div class="code-block" style="font-size: 0.95em;">
+functions = [{<br>
+&nbsp;&nbsp;"name": "get_weather",<br>
+&nbsp;&nbsp;"description": "Get weather for location",<br>
+&nbsp;&nbsp;"parameters": {...}<br>
+}]
+                </div>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>2. API Call with Functions</h3>
+                <div class="code-block" style="font-size: 0.95em;">
+response = client.chat.completions.create(<br>
+&nbsp;&nbsp;model="gpt-4o-mini",<br>
+&nbsp;&nbsp;messages=[...],<br>
+&nbsp;&nbsp;functions=functions,<br>
+&nbsp;&nbsp;function_call="auto"<br>
+)
+                </div>
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>3. Check & Execute Function</h3>
+                <div class="code-block" style="font-size: 0.95em;">
+if message.function_call:<br>
+&nbsp;&nbsp;function_name = message.function_call.name<br>
+&nbsp;&nbsp;args = json.loads(message.function_call.arguments)<br>
+&nbsp;&nbsp;result = execute_function(function_name, args)<br>
+&nbsp;&nbsp;# Send result back to AI
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11: Exercise 2 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Calculator Agent 🧮</h1>
+            <div class="intro-box">
+                <h2>What You'll Build:</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    A conversational agent that can perform calculations using function calling!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Features:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Add, subtract, multiply, divide</li>
+                        <li>✅ Power operations</li>
+                        <li>✅ Conversational interface</li>
+                        <li>✅ Error handling</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>File:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+02_calculator_agent_starter.py
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div class="big-number" style="font-size: 2.5em;">40</div>
+                        <span style="font-size: 1.3em;">minutes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 This is your first real agent!</strong> It can understand natural language requests and use tools to complete them.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12: Exercise 2 Concepts -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 2: Key Concepts 🧠</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Multiple Functions</h3>
+                    <p style="font-size: 1.2em;">
+                        Define multiple calculator functions (add, subtract, etc.). AI chooses which one to use!
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Conversation Loop</h3>
+                    <p style="font-size: 1.2em;">
+                        Maintain conversation history so agent remembers context across multiple calculations
+                    </p>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Function Execution</h3>
+                    <p style="font-size: 1.2em;">
+                        Map function names to actual Python functions. Execute and return results to AI
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>Error Handling</h3>
+                    <p style="font-size: 1.2em;">
+                        Handle errors gracefully (e.g., division by zero). Return error messages to AI
+                    </p>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 30px; font-size: 1.8em;">
+                Try: "What is 15 + 27?" or "Calculate 100 divided by 4"
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13: Exercise 3 Overview -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 3: Research Assistant Agent 🔍</h1>
+            <div class="intro-box">
+                <h2>What You'll Build:</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    An agent that can search for information and provide comprehensive answers using multi-step reasoning!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Capabilities:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Search for information</li>
+                        <li>✅ Multi-step reasoning</li>
+                        <li>✅ Agent loop (plan → execute → reflect)</li>
+                        <li>✅ Comprehensive summaries</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>File:</h3>
+                    <div class="code-block" style="font-size: 1.1em;">
+03_research_agent_starter.py
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <div class="big-number" style="font-size: 2.5em;">50</div>
+                        <span style="font-size: 1.3em;">minutes</span>
+                    </div>
+                </div>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>🎯 This demonstrates the agent loop!</strong> Agent searches, processes results, and provides answers.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14: Exercise 3 Multi-Step -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 3: Multi-Step Reasoning 🔄</h1>
+            <div class="flow-diagram" style="font-size: 1.5em;">
+                User: "What is Python?"<br>
+                ↓<br>
+                <strong>Iteration 1:</strong><br>
+                Agent decides: "I need to search"<br>
+                → Calls web_search("Python")<br>
+                → Gets results<br>
+                ↓<br>
+                <strong>Iteration 2:</strong><br>
+                Agent processes search results<br>
+                → Generates comprehensive answer<br>
+                → Returns to user ✅
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Key Implementation:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Loop until task complete</li>
+                        <li>Check for function calls</li>
+                        <li>Execute and add to history</li>
+                        <li>Continue loop</li>
+                        <li>Max iterations safety</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Why This Matters:</h3>
+                    <p style="font-size: 1.2em;">
+                        Real agents work this way! They plan, execute, reflect, and iterate until the task is done.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15: Exercise 4 Overview (Bonus) -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Exercise 4: Task Automation Agent (Bonus) 🚀</h1>
+            <div class="intro-box">
+                <h2>Advanced Agent:</h2>
+                <p style="font-size: 1.5em; margin-top: 20px;">
+                    Build an agent with multiple tools that can plan and execute complex multi-step tasks!
+                </p>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Tools Available:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🧮 Calculator</li>
+                        <li>🔍 Search info</li>
+                        <li>📝 Create notes</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Example Tasks:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>"Calculate 15 * 23 and save to note"</li>
+                        <li>"Search for Python info and create note"</li>
+                        <li>Multi-step workflows</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="warning" style="margin-top: 30px;">
+                <strong>⏱️ Optional Exercise:</strong> Only if you're ahead of schedule! This combines everything you've learned.
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16: Agent Patterns -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Common Agent Patterns 🎨</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>1. Single Function Call</h3>
+                    <p style="font-size: 1.2em;">
+                        User asks → Agent calls function → Returns result
+                    </p>
+                    <p style="font-size: 1em; color: #666; margin-top: 10px;">
+                        Example: Calculator agent
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>2. Multi-Step Loop</h3>
+                    <p style="font-size: 1.2em;">
+                        User asks → Agent plans → Executes → Reflects → Repeats if needed
+                    </p>
+                    <p style="font-size: 1em; color: #666; margin-top: 10px;">
+                        Example: Research agent
+                    </p>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>3. Parallel Execution</h3>
+                    <p style="font-size: 1.2em;">
+                        Agent calls multiple functions simultaneously
+                    </p>
+                    <p style="font-size: 1em; color: #666; margin-top: 10px;">
+                        Advanced pattern
+                    </p>
+                </div>
+                <div class="card">
+                    <h3>4. Error Recovery</h3>
+                    <p style="font-size: 1.2em;">
+                        Agent handles errors and tries alternative approaches
+                    </p>
+                    <p style="font-size: 1em; color: #666; margin-top: 10px;">
+                        Production-ready pattern
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17: Real-World Applications -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Real-World Agent Applications 🌍</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Personal Assistants</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Schedule meetings</li>
+                        <li>Send emails</li>
+                        <li>Manage tasks</li>
+                        <li>Research topics</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Customer Service</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Look up orders</li>
+                        <li>Process refunds</li>
+                        <li>Update databases</li>
+                        <li>Escalate issues</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>Code Generation</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Read codebases</li>
+                        <li>Search documentation</li>
+                        <li>Write code</li>
+                        <li>Test and debug</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Data Analysis</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Query databases</li>
+                        <li>Process data</li>
+                        <li>Generate reports</li>
+                        <li>Create visualizations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 18: Agent Frameworks -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Agent Frameworks (Overview) 🛠️</h1>
+            <div class="intro-box">
+                <h2>Popular Frameworks:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li><strong>LangChain</strong> - Popular Python framework for building agents</li>
+                    <li><strong>LlamaIndex</strong> - Great for RAG and data agents</li>
+                    <li><strong>AutoGPT</strong> - Autonomous agent framework</li>
+                    <li><strong>BabyAGI</strong> - Task-driven autonomous agent</li>
+                </ul>
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💡 Today we're building from scratch!</strong> This gives you a deep understanding. Later, you can use frameworks to build faster.
+            </div>
+            <div class="card" style="margin-top: 30px;">
+                <h3>When to Use Frameworks:</h3>
+                <ul style="font-size: 1.2em;">
+                    <li>✅ Complex multi-agent systems</li>
+                    <li>✅ Production applications</li>
+                    <li>✅ Need pre-built components</li>
+                    <li>✅ Want to move fast</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 19: Best Practices -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Agent Best Practices 🎓</h1>
+            <div class="two-column">
+                <div class="card">
+                    <h3>Function Design:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Clear descriptions</li>
+                        <li>✅ Well-defined parameters</li>
+                        <li>✅ Handle errors gracefully</li>
+                        <li>✅ Return useful results</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Safety & Limits:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>⚠️ Set max iterations</li>
+                        <li>⚠️ Validate inputs</li>
+                        <li>⚠️ Rate limiting</li>
+                        <li>⚠️ Cost monitoring</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="two-column" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>System Prompts:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Clear role definition</li>
+                        <li>✅ Instructions on tool use</li>
+                        <li>✅ Error handling guidance</li>
+                        <li>✅ Output format preferences</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Testing:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Test each function</li>
+                        <li>✅ Test agent loop</li>
+                        <li>✅ Test error cases</li>
+                        <li>✅ Monitor costs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 20: Day 4 Preparation -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Preparing for Day 4: Projects 🎯</h1>
+            <div class="intro-box">
+                <h2>Project Ideas Using Agents:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li>🤖 Personal assistant agent</li>
+                    <li>🔍 Research & summarization agent</li>
+                    <li>💻 Code generation agent</li>
+                    <li>📧 Email processing agent</li>
+                    <li>📊 Data analysis agent</li>
+                    <li>🛒 Shopping assistant agent</li>
+                </ul>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>What You've Learned:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Function calling basics</li>
+                        <li>✅ Building agents</li>
+                        <li>✅ Multi-step reasoning</li>
+                        <li>✅ Agent patterns</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Next Steps:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🚀 Choose a project idea</li>
+                        <li>🚀 Plan your agent</li>
+                        <li>🚀 Define your tools</li>
+                        <li>🚀 Build and test!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 21: Combining with n8n -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Agents + n8n = Superpower! ⚡</h1>
+            <div class="intro-box">
+                <h2>Integration Ideas:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li>🤖 Build agent in code → Trigger from n8n</li>
+                    <li>🔄 n8n workflow → Calls agent API</li>
+                    <li>📧 Agent processes email → n8n sends notification</li>
+                    <li>🔍 Agent researches → n8n saves to database</li>
+                </ul>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Code (Day 3):</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Complex logic</li>
+                        <li>Agent reasoning</li>
+                        <li>Function calling</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>n8n (Day 2):</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>Service integrations</li>
+                        <li>Workflow orchestration</li>
+                        <li>Visual automation</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 30px; font-size: 1.8em;">
+                Best of both worlds! 🎉
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 22: Wrap Up -->
+    <div class="slide-container">
+        <div class="slide">
+            <h1>Congratulations! 🎉</h1>
+            <div class="intro-box">
+                <h2>What You've Accomplished:</h2>
+                <ul class="checklist">
+                    <li>Understood what AI agents are</li>
+                    <li>Learned function calling / tool use</li>
+                    <li>Built calculator agent</li>
+                    <li>Built research assistant agent</li>
+                    <li>Understood agent patterns and loops</li>
+                </ul>
+            </div>
+            <div class="two-column" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>Key Takeaways:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>✅ Agents can think and act</li>
+                        <li>✅ Function calling enables tool use</li>
+                        <li>✅ Multi-step reasoning is powerful</li>
+                        <li>✅ Agents are the future of AI!</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Next Steps:</h3>
+                    <ul style="font-size: 1.2em;">
+                        <li>🚀 Review solutions</li>
+                        <li>🚀 Experiment with agents</li>
+                        <li>🚀 Plan Day 4 project</li>
+                        <li>🚀 Build something amazing!</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="big-text" style="margin-top: 40px; font-size: 2em;">
+                You're now an Agent Builder! 🤖🚀
+            </div>
+            <div class="tip" style="margin-top: 30px;">
+                <strong>💬 Questions?</strong> Let's discuss what you learned and any questions you have!
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slideContainers = document.querySelectorAll('.slide-container');
+        const totalSlides = slideContainers.length;
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(n) {
+            slideContainers[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slideContainers[currentSlide].classList.add('active');
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                previousSlide();
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                previousSlide();
+            }
+        }
+    </script>
+</body>
+</html>
+
