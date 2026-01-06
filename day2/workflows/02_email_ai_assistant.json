@@ -1,0 +1,157 @@
+{
+  "name": "02 - Email AI Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerOn": "message",
+        "options": {}
+      },
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Triggers when new email arrives"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.messageId }}",
+        "options": {}
+      },
+      "name": "Get Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [470, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Retrieves full email content"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract email details\nconst email = $input.item.json;\n\nreturn {\n  json: {\n    from: email.from,\n    subject: email.subject,\n    body: email.textPlain || email.textHtml,\n    snippet: email.snippet\n  }\n};"
+      },
+      "name": "Extract Email Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [690, 300],
+      "notes": "Extracts relevant email information"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an email assistant. Analyze emails and provide helpful responses or summaries. Be concise and professional."
+            },
+            {
+              "role": "user",
+              "content": "Email from: {{ $json.from }}\nSubject: {{ $json.subject }}\n\nContent:\n{{ $json.body }}\n\nPlease analyze this email and provide a helpful response or summary."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "OpenAI Analyze",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [910, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "1",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "AI analyzes email and generates response"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "subject": "Re: {{ $('Get Email').item.json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.choices[0].message.content }}",
+        "toEmail": "={{ $('Get Email').item.json.from }}",
+        "options": {
+          "sendToDraft": true
+        }
+      },
+      "name": "Save Draft",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [1130, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1",
+          "name": "Gmail account"
+        }
+      },
+      "notes": "Saves AI-generated response as draft"
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Email": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Content": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Analyze",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Analyze": {
+      "main": [
+        [
+          {
+            "node": "Save Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2024-12-22T00:00:00.000Z",
+  "versionId": "1"
+}
+
